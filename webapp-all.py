@@ -150,7 +150,7 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
     image_type = "png"
 
-    urllib.request.urlretrieve(image_url, f"{image_path}/{image_filename}.{image_type}")
+    urllib.request.urlretrieve(image_url, f"input_{image_filename}.{image_type}")
 
     # Calculate max patches
     width = dimensions[0]
@@ -174,7 +174,7 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     bottom = 1280-h_crop/2
 
     # Open the downloaded image in PIL
-    my_img = Image.open(f"{image_path}/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+    my_img = Image.open(f"input_{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
 
     patch_list = []
     #im = Image.open(f'{image_path}')
@@ -204,12 +204,6 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     else:
         return imarray, prediction
 
-def save_image_prediction(prediction, path, custom_suffix=""):
-    """saves image at the specified path"""
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    Image.fromarray(np.uint8(prediction*255)).save(f"{path}/{timestamp}_{custom_suffix}.png")
-    return f"{path}/{timestamp}_{custom_suffix}.png"
-
 
 def get_ground_truth(lat, lon, zoom=17, dimensions = (200,200, 3)):
     gt_url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size=640x640&scale=2&map_id=c2e4254a97b86e42&style=feature:all|element:labels|visibility:off&key={MAPS_API_KEY}"
@@ -217,7 +211,7 @@ def get_ground_truth(lat, lon, zoom=17, dimensions = (200,200, 3)):
     image_path = LOCAL_API_DATA_FOLDER
     image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
     image_type = "png"
-    urllib.request.urlretrieve(gt_url, f"{image_path}/{image_filename}.{image_type}")
+    urllib.request.urlretrieve(gt_url, f"gt_{image_filename}.{image_type}")
 
     # Calculate max patches
     width = dimensions[0]
@@ -240,7 +234,7 @@ def get_ground_truth(lat, lon, zoom=17, dimensions = (200,200, 3)):
     right = 1280-w_crop/2
     bottom = 1280-h_crop/2
 
-    my_img = Image.open(f"{image_path}/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+    my_img = Image.open(f"gt_{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
 
     # Load or create your image as a NumPy array
     image = np.array(my_img)  # Replace 'your_image' with your actual image array
