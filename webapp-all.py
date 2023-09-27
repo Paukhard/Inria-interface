@@ -8,6 +8,7 @@ from geopy.extra.rate_limiter import RateLimiter
 
 import tensorflow as tf
 from google.cloud import storage
+from google.oauth2 import service_account
 
 import tensorflow as tf
 from tqdm import tqdm
@@ -31,13 +32,18 @@ threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, v
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
 show_iou = st.sidebar.checkbox('Show IOU graph')
 
-#storage_client = storage.Client(project="le-wagon-bootcamp-398616")
-#buckets = storage_client.list_buckets()
 
-#print("Buckets:")
-#for bucket in buckets:
-#    print(bucket.name)
-#print("Listed all storage buckets.")
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+
+storage_client = storage.Client(project="le-wagon-bootcamp-398616", credentials=credentials)
+buckets = storage_client.list_buckets()
+
+print("Buckets:")
+for bucket in buckets:
+    print(bucket.name)
+print("Listed all storage buckets.")
 
 # PREDICT FUNCTION
 def prediction():
