@@ -37,8 +37,11 @@ show_iou = st.sidebar.checkbox('Show IOU graph')
 
 
 
-@st.cache_ressources
+@st.cache_ressource
 def get_model_from_gcs():
+
+    print("Getting new model!")
+
     credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
     )
