@@ -22,7 +22,7 @@ from patchify import patchify
 st.set_page_config(layout="wide")
 
 LOCAL_API_DATA_FOLDER = ""
-MAPS_API_KEY = st.secrets["db_username"]
+MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
 # SIDEBAR
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
