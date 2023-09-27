@@ -38,12 +38,17 @@ MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
 zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
+model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
 
 # show_iou = st.sidebar.checkbox('Show IOU graph')
 
 # The predict button comes after the definition of the predict function
 
+dim_dict = {
+    "unet":(200,200,3),
+    "segnet":(200,200,3),
+    "DeepLabV3":(512,512,3)
+}
 
 @st.cache_resource
 def get_model_from_gcs(model="unet"):
