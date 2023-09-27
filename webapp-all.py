@@ -29,7 +29,7 @@ MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
 # Top
 
-top_bar = st.columns[5]
+top_bar = st.columns(5)
 street = top_bar[0].text_input("Address", "Schützenstraße 40, Berlin")
 zoom_level = top_bar[1].number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
 threshold = top_bar[2].number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
