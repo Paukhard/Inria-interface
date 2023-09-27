@@ -22,7 +22,11 @@ import os
 from patchify import patchify
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    layout="wide",
+    page_title="Building Predictor",
+    page_icon="🏛️",)
+
 
 LOCAL_API_DATA_FOLDER = ""
 MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
@@ -30,7 +34,15 @@ MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
 
 
+# TOP BAR
+street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
+zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
+threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
 
+show_iou = st.sidebar.checkbox('Show IOU graph')
+
+# The predict button comes after the definition of the predict function
 
 
 @st.cache_resource
@@ -138,17 +150,9 @@ def prediction():
     st.header("Location")
     st.map(map_data)
 
-# TOP BAR
-top_bar = st.columns(4)
-street = top_bar[0].text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = top_bar[1].number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
-threshold = top_bar[2].number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = top_bar[3].selectbox('What model do you want to use?', ('unet', 'segnet'))
 
-control_bar = st.columns(4)
-show_iou = control_bar[0].checkbox('Show IOU graph')
 
-control_bar[1].button("Predict Buildings", on_click=prediction)
+st.sidebar.button("Predict Buildings", on_click=prediction)
 
 
 def get_input_image_maps(lat, lon, zoom=17, dimensions = (200,200, 3)):
