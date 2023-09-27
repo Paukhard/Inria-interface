@@ -29,7 +29,7 @@ MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
 # SIDEBAR
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = st.sidebar.number_input("Zoom", min_value=2, max_value=20, value=17, format="%i")
+zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
 show_iou = st.sidebar.checkbox('Show IOU graph')
@@ -84,8 +84,15 @@ def prediction():
 
     map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
+    model = None
 
-    # PROCESS COMPUTE INTENSIVE TASK
+    # LOADING MODEl
+    with columns[0].spinner("Loading model..."):
+        model = get_model_from_gcs(model_selection)
+
+    with columns[0].spinner("Loading model..."):
+        pass
+
     with st.spinner('Wait for it...'):
 
         #model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
@@ -121,11 +128,6 @@ def prediction():
                 st.session_state['prev_iou'] = current_iou
 
             columns[1].metric(label="IOU", value=f"{current_iou}", delta=delta)
-
-        # NO GROUND TRUTH
-        else:
-            columns[1].write("Input Image")
-            columns[1].image(original)
 
         # IF WE WANT TO SHOW IOU GRAPH
         if show_iou:
