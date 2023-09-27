@@ -27,12 +27,14 @@ st.set_page_config(layout="wide")
 LOCAL_API_DATA_FOLDER = ""
 MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
-# SIDEBAR
-street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
-threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
-show_iou = st.sidebar.checkbox('Show IOU graph')
+# Top
+
+top_bar = st.columns[5]
+street = top_bar[0].text_input("Address", "Schützenstraße 40, Berlin")
+zoom_level = top_bar[1].number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
+threshold = top_bar[2].number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+model_selection = top_bar[3].selectbox('What model do you want to use?', ('unet', 'segnet'))
+show_iou = top_bar[4].checkbox('Show IOU graph')
 
 
 
@@ -100,7 +102,6 @@ def prediction():
         gt = get_ground_truth(lat, lon, zoom=zoom_level, dimensions=dimensions)
 
     with st.spinner('Showing prediction...'):
-
         # SHOW PREDICT MASK
         columns[2].write("Segmentation Mask")
         columns[2].image(((prediction)>threshold)*255)
