@@ -62,6 +62,20 @@ def get_model_from_gcs(model="unet"):
 
 
 
+
+# TOP BAR
+top_bar = st.columns(4)
+street = top_bar[0].text_input("Address", "Schützenstraße 40, Berlin")
+zoom_level = top_bar[1].number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
+threshold = top_bar[2].number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+model_selection = top_bar[3].selectbox('What model do you want to use?', ('unet', 'segnet'))
+
+control_bar = st.columns(4)
+show_iou = control_bar[0].checkbox('Show IOU graph')
+
+control_bar[1].button("Predict Buildings", on_click=prediction)
+
+
 # PREDICT FUNCTION
 def prediction():
 
@@ -139,20 +153,6 @@ def prediction():
 
     st.header("Location")
     st.map(map_data)
-
-
-# TOP BAR
-top_bar = st.columns(4)
-street = top_bar[0].text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = top_bar[1].number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
-threshold = top_bar[2].number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = top_bar[3].selectbox('What model do you want to use?', ('unet', 'segnet'))
-
-control_bar = st.columns(4)
-show_iou = control_bar[0].checkbox('Show IOU graph')
-
-control_bar[1].button("Predict Buildings", on_click=prediction)
-
 
 def get_input_image_maps(lat, lon, zoom=17, dimensions = (200,200, 3)):
     """Returns original image as a matrix from google maps.
