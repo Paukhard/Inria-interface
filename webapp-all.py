@@ -35,12 +35,12 @@ MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
 
 
 # TOP BAR
-street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
-threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
+# street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
+# zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
+# threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+# model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
 
-show_iou = st.sidebar.checkbox('Show IOU graph')
+# show_iou = st.sidebar.checkbox('Show IOU graph')
 
 # The predict button comes after the definition of the predict function
 
@@ -151,8 +151,8 @@ def prediction():
     st.map(map_data)
 
 
-
-st.sidebar.button("Predict Buildings", on_click=prediction)
+# SIDEBAR BUTTON
+#st.sidebar.button("Predict Buildings", on_click=prediction)
 
 
 def get_input_image_maps(lat, lon, zoom=17, dimensions = (200,200, 3)):
