@@ -38,7 +38,7 @@ show_iou = st.sidebar.checkbox('Show IOU graph')
 
 
 @st.cache_resource
-def get_model_from_gcs():
+def get_model_from_gcs(model="unet"):
 
     print("Getting new model!")
 
@@ -57,12 +57,10 @@ def get_model_from_gcs():
 
     blob_iterator = bucket.list_blobs()
 
-    model = None
+    blob = bucket.blob(f"models/{model}.h5")
 
-    for blob in blob_iterator:
-        blob.download_to_filename("model")
-
-        model = tf.keras.models.load_model("model")
+    blob.download_to_filename("model")
+    model = tf.keras.models.load_model("model")
 
     return model
 
@@ -91,7 +89,7 @@ def prediction():
     with st.spinner('Wait for it...'):
 
         #model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
-        model = get_model_from_gcs()
+        model = get_model_from_gcs(model_selection)
 
         original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
 
@@ -185,6 +183,8 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     # Open the downloaded image in PIL
     my_img = Image.open(f"input_{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
 
+    os.remove(f"input_{image_filename}.{image_type}")
+
     patch_list = []
     #im = Image.open(f'{image_path}')
     imarray = np.array(my_img)
@@ -207,6 +207,8 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
 
     rows = [np.hstack(predict_data[r]) for r in range(patches.shape[1])]
     prediction = np.vstack(rows)
+
+
 
     if return_ground_truth and int(zoom) >= 17:
         return imarray, get_ground_truth(lat,lon, zoom, dimensions=dimensions), prediction
@@ -244,6 +246,9 @@ def get_ground_truth(lat, lon, zoom=17, dimensions = (200,200, 3)):
     bottom = 1280-h_crop/2
 
     my_img = Image.open(f"gt_{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+
+    os.remove(f"gt_{image_filename}.{image_type}")
+
 
     # Load or create your image as a NumPy array
     image = np.array(my_img)  # Replace 'your_image' with your actual image array
