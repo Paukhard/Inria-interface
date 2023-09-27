@@ -82,7 +82,7 @@ def prediction():
     # PROCESS COMPUTE INTENSIVE TASK
     with st.spinner('Wait for it...'):
 
-        model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
+        #model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
 
         original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
 
