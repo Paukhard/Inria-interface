@@ -1,0 +1,7 @@
+numpy
+pandas
+matplotlib
+patchify
+tensorflow
+geopy
+google-cloud-storage

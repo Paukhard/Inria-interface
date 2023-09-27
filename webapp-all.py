@@ -1,0 +1,261 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+
+import tensorflow as tf
+from google.cloud import storage
+
+import tensorflow as tf
+from tqdm import tqdm
+from PIL import Image
+import numpy as np
+import urllib
+import time
+
+
+st.set_page_config(layout="wide")
+
+
+# SIDEBAR
+street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
+zoom_level = st.sidebar.number_input("Zoom", min_value=2, max_value=20, value=17, format="%i")
+threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
+model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet'))
+show_iou = st.sidebar.checkbox('Show IOU graph')
+
+#storage_client = storage.Client(project="le-wagon-bootcamp-398616")
+#buckets = storage_client.list_buckets()
+
+#print("Buckets:")
+#for bucket in buckets:
+#    print(bucket.name)
+#print("Listed all storage buckets.")
+
+# PREDICT FUNCTION
+def prediction():
+
+    # SET HEADER
+    st.header(f"Prediction for {street}")
+
+    # GET LOCATION DATA
+    geolocator = Nominatim(user_agent="GTA Lookup")
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+    location = geolocator.geocode(street)
+
+    lat = location.latitude
+    lon = location.longitude
+
+    columns = st.columns(3)
+
+    map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
+
+
+    # PROCESS COMPUTE INTENSIVE TASK
+    with st.spinner('Wait for it...'):
+
+        model = tf.keras.models.load_model(f"/Users/paulrenger/code/Paukhard/inria1358/mlops/{model_selection}")
+
+        original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
+
+        # SHOW PREDICT MASK
+        columns[2].write("Segmentation Mask")
+        columns[2].image(((prediction)>threshold)*255)
+        sub_columns = columns[2].columns(3)
+
+        sub_columns[1].metric(label="Max value", value=f"{np.round(np.max(prediction)/255,3)}")
+        sub_columns[2].metric(label="Min value", value=f"{np.round(np.min(prediction)/255,3)}")
+
+        # IF ZOOM >= 17, THEN WE HAVE A GROUND TRUTH, SHOW GROUND TRUTH
+        if zoom_level >= 17:
+
+            columns[0].write("Input Image")
+            columns[0].image(original)
+
+            columns[1].write("Ground Truth")
+            columns[1].image(gt)
+
+            # CALCULATE CHANGE TO PREVIOUS METRIC
+            delta = None
+            current_iou = compute_iou(prediction>threshold, np.array(tf.squeeze(tf.image.rgb_to_grayscale(gt))))
+
+            if 'prev_iou' in st.session_state:
+                delta = f"{np.round((current_iou/st.session_state['prev_iou']-1)*100)}%"
+                st.session_state['prev_iou'] = current_iou
+            else:
+                st.session_state['prev_iou'] = current_iou
+
+            columns[1].metric(label="IOU", value=f"{current_iou}", delta=delta)
+
+        # NO GROUND TRUTH
+        else:
+            columns[1].write("Input Image")
+            columns[1].image(original)
+
+        # IF WE WANT TO SHOW IOU GRAPH
+        if show_iou:
+            fig, ax = plt.subplots()
+
+            linspace = np.linspace(0.05, 0.95, num=50)
+            y = [compute_iou(prediction>ts, np.array(tf.squeeze(tf.image.rgb_to_grayscale(gt)))) for ts in linspace]
+            ax.plot(linspace, y)
+            ax.set_ylabel("IOU")
+            ax.set_xlabel("Threshold")
+
+            columns[0].pyplot(fig)
+
+    st.header("Location")
+    st.map(map_data)
+
+
+
+st.sidebar.button("Predict Buildings", on_click=prediction)
+
+
+
+def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimensions = (200,200, 3)):
+    """Returns original image and prediction matrix for a google maps image from the specified lat,lon. If zoom >= 17 and return_ground_truth = True, it also returns a GT generated from google maps api.
+    """
+    image_url=f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size=640x640&scale=2&maptype=satellite&key={MAPS_API_KEY}"
+
+    image_path = LOCAL_API_DATA_FOLDER
+    image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
+    image_type = "png"
+
+    urllib.request.urlretrieve(image_url, f"{image_path}/input/{image_filename}.{image_type}")
+
+    # Calculate max patches
+    width = dimensions[0]
+    height = dimensions[1]
+
+    w_max_patches = int(1280 / width)
+    h_max_patches = int(1280 / height)
+
+    # Calculate max size
+    w_max = width * w_max_patches
+    h_max = height * h_max_patches
+
+    # Required crop
+    w_crop = 1280 - w_max
+    h_crop = 1280 - h_max
+
+    # Set crop boundaries
+    left = w_crop / 2
+    top = h_crop / 2
+    right = 1280-w_crop/2
+    bottom = 1280-h_crop/2
+
+    # Open the downloaded image in PIL
+    my_img = Image.open(f"{image_path}/input/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+
+    patch_list = []
+    #im = Image.open(f'{image_path}')
+    imarray = np.array(my_img)
+    patches = patchify(imarray, dimensions, step=dimensions[0])
+
+    predict_data = []
+    for r_ind in tqdm(range(patches.shape[0])):
+        col_predict = []
+        for c_ind in range(patches.shape[1]):
+            image = patches[r_ind][c_ind]
+            image = image/255
+
+            # Predict
+            predict_mask = model.predict(image, verbose=0)
+
+            # Remove batch
+            predict_mask = tf.squeeze(predict_mask)
+            col_predict.append(predict_mask)
+        predict_data.append(col_predict)
+
+    rows = [np.hstack(predict_data[r]) for r in range(patches.shape[1])]
+    prediction = np.vstack(rows)
+
+    if return_ground_truth and int(zoom) >= 17:
+        return imarray, get_ground_truth(lat,lon, zoom, dimensions=dimensions), prediction
+    else:
+        return imarray, prediction
+
+def save_image_prediction(prediction, path, custom_suffix=""):
+    """saves image at the specified path"""
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    Image.fromarray(np.uint8(prediction*255)).save(f"{path}/{timestamp}_{custom_suffix}.png")
+    return f"{path}/{timestamp}_{custom_suffix}.png"
+
+
+def get_ground_truth(lat, lon, zoom=17, dimensions = (200,200, 3)):
+    gt_url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size=640x640&scale=2&map_id=c2e4254a97b86e42&style=feature:all|element:labels|visibility:off&key={MAPS_API_KEY}"
+
+    image_path = LOCAL_API_DATA_FOLDER
+    image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
+    image_type = "png"
+    urllib.request.urlretrieve(gt_url, f"{image_path}/{image_filename}.{image_type}")
+
+    # Calculate max patches
+    width = dimensions[0]
+    height = dimensions[1]
+
+    w_max_patches = int(1280 / width)
+    h_max_patches = int(1280 / height)
+
+    # Calculate max size
+    w_max = width * w_max_patches
+    h_max = height * h_max_patches
+
+    # Required crop
+    w_crop = 1280 - w_max
+    h_crop = 1280 - h_max
+
+    # Set crop boundaries
+    left = w_crop / 2
+    top = h_crop / 2
+    right = 1280-w_crop/2
+    bottom = 1280-h_crop/2
+
+    my_img = Image.open(f"{image_path}/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+
+    # Load or create your image as a NumPy array
+    image = np.array(my_img)  # Replace 'your_image' with your actual image array
+
+    # Define the desired color and a tolerance
+    desired_color = (191, 48, 191)  # Red in RGB
+    tolerance = 80  # Adjust this tolerance as needed
+
+    # Create a mask for the desired color
+    lower_bound = np.array(desired_color) - tolerance
+    upper_bound = np.array(desired_color) + tolerance
+    mask = np.all((image >= lower_bound) & (image <= upper_bound), axis=2)
+
+    # Color the masked pixels white
+    result = np.zeros_like(image)
+    result[mask] = (255,255,255)
+
+    return result
+
+def compute_iou(mask1, mask2):
+    """
+    Compute the Intersection over Union (IoU) of two binary segmentation masks.
+
+    Args:
+        mask1 (numpy.ndarray): First binary mask.
+        mask2 (numpy.ndarray): Second binary mask.
+
+    Returns:
+        float: IoU score.
+    """
+    # Ensure the masks are binary
+    mask1 = (mask1 > 0).astype(np.uint8)
+    mask2 = (mask2 > 0).astype(np.uint8)
+
+    # Intersection and Union
+    intersection = np.logical_and(mask1, mask2).sum()
+    union = np.logical_or(mask1, mask2).sum()
+
+    # Avoid division by zero
+    if union == 0:
+        return 0.0
+
+    return intersection / union
