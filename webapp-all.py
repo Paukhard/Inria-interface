@@ -150,7 +150,7 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
     image_type = "png"
 
-    urllib.request.urlretrieve(image_url, f"{image_path}/input/{image_filename}.{image_type}")
+    urllib.request.urlretrieve(image_url, f"{image_path}/{image_filename}.{image_type}")
 
     # Calculate max patches
     width = dimensions[0]
