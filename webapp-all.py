@@ -84,14 +84,20 @@ def prediction():
 
     map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
+    dimensions = (200,200,3)
 
     # LOADING MODEl
     with st.spinner("Loading model..."):
         model = get_model_from_gcs(model_selection)
 
-    with st.spinner("Predicting images..."):
-        original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
+    with st.spinner("Getting input image from Maps API..."):
+        original = get_input_image_maps(lat, lon, zoom=zoom_level, dimensions=dimensions)
 
+    with st.spinner("Making prediction"):
+        prediction = get_prediction_image(original, model, dimensions=dimensions)
+
+    with st.spinner("Getting ground truth from Maps API..."):
+        gt = get_ground_truth(lat, lon, zoom=zoom_level, dimensions=dimensions)
 
     with st.spinner('Showing prediction...'):
 
@@ -142,6 +148,69 @@ def prediction():
 
 
 st.sidebar.button("Predict Buildings", on_click=prediction)
+
+
+def get_input_image_maps(lat, lon, zoom=17, dimensions = (200,200, 3)):
+    """Returns original image as a matrix from google maps.
+    """
+    image_url=f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size=640x640&scale=2&maptype=satellite&key={MAPS_API_KEY}"
+
+    image_path = LOCAL_API_DATA_FOLDER
+    image_filename = f"{str(lat).replace('.','_')}__{str(lon).replace('.','_')}"
+    image_type = "png"
+
+    urllib.request.urlretrieve(image_url, f"input_{image_filename}.{image_type}")
+
+    # Calculate max patches
+    width = dimensions[0]
+    height = dimensions[1]
+
+    w_max_patches = int(1280 / width)
+    h_max_patches = int(1280 / height)
+
+    # Calculate max size
+    w_max = width * w_max_patches
+    h_max = height * h_max_patches
+
+    # Required crop
+    w_crop = 1280 - w_max
+    h_crop = 1280 - h_max
+
+    # Set crop boundaries
+    left = w_crop / 2
+    top = h_crop / 2
+    right = 1280-w_crop/2
+    bottom = 1280-h_crop/2
+
+    # Open the downloaded image in PIL
+    my_img = Image.open(f"input_{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+
+    os.remove(f"input_{image_filename}.{image_type}")
+
+    imarray = np.array(my_img)
+
+    return imarray
+
+def get_prediction_image(imarray, model, dimensions = (200,200, 3)):
+    patches = patchify(imarray, dimensions, step=dimensions[0])
+
+    predict_data = []
+    for r_ind in tqdm(range(patches.shape[0])):
+        col_predict = []
+        for c_ind in range(patches.shape[1]):
+            image = patches[r_ind][c_ind]
+            image = image/255
+
+            # Predict
+            predict_mask = model.predict(image, verbose=0)
+
+            # Remove batch
+            predict_mask = tf.squeeze(predict_mask)
+            col_predict.append(predict_mask)
+        predict_data.append(col_predict)
+
+    rows = [np.hstack(predict_data[r]) for r in range(patches.shape[1])]
+    return np.vstack(rows)
 
 
 
