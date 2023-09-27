@@ -37,7 +37,7 @@ credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
 )
 
-storage_client = storage.Client(project="le-wagon-bootcamp-398616", credentials=credentials)
+storage_client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
 buckets = storage_client.list_buckets()
 
 print("Buckets:")
