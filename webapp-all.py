@@ -17,6 +17,8 @@ import numpy as np
 import urllib
 import time
 
+import os
+
 from patchify import patchify
 
 
@@ -37,13 +39,28 @@ credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
 )
 
-storage_client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
-buckets = storage_client.list_buckets()
+client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
+buckets = client.list_buckets()
 
 st.write("Buckets:")
 for bucket in buckets:
     st.write(bucket.name)
 print("Listed all storage buckets.")
+
+bucket_name = 'taxifare_paukhard'
+directory_name = 'unet'
+destination_folder = 'unet'
+
+bucket = client.get_bucket(bucket_name)
+blobs = bucket.list_blobs(prefix=directory_name)
+
+for blob in blobs:
+    if '.' in blob.name.split('/')[-1]:
+        # This is a file, download it
+        blob.download_to_filename(destination_folder + '/' + blob.name.split('/')[-1])
+    else:
+        # This is a directory, create it
+        os.makedirs(destination_folder + '/' + blob.name, exist_ok=True)
 
 # PREDICT FUNCTION
 def prediction():

@@ -6,3 +6,4 @@ tensorflow
 geopy
 google-cloud-storage
 tqdm
+gcsfs
