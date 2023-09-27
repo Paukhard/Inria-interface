@@ -16,9 +16,13 @@ import numpy as np
 import urllib
 import time
 
+from patchify import patchify
+
 
 st.set_page_config(layout="wide")
 
+LOCAL_API_DATA_FOLDER = ""
+MAPS_API_KEY = st.secrets["db_username"]
 
 # SIDEBAR
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
