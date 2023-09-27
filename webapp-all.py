@@ -174,7 +174,7 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     bottom = 1280-h_crop/2
 
     # Open the downloaded image in PIL
-    my_img = Image.open(f"{image_path}/input/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
+    my_img = Image.open(f"{image_path}/{image_filename}.{image_type}").crop((left, top, right, bottom)).convert("RGB")
 
     patch_list = []
     #im = Image.open(f'{image_path}')
