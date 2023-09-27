@@ -52,15 +52,15 @@ directory_name = 'unet'
 destination_folder = 'unet'
 
 bucket = client.get_bucket(bucket_name)
-blobs = bucket.list_blobs(prefix=directory_name)
 
-for blob in blobs:
-    if '.' in blob.name.split('/')[-1]:
-        # This is a file, download it
-        blob.download_to_filename(destination_folder + '/' + blob.name.split('/')[-1])
-    else:
-        # This is a directory, create it
-        os.makedirs(destination_folder + '/' + blob.name, exist_ok=True)
+blob_iterator = bucket.list_blobs(prefix=directory_name)
+
+for blob in blob_iterator:
+    # Extract the filename from the blob's name
+    local_filename = blob.name.replace(directory_name, '')
+
+    # Download the blob to the local directory
+    blob.download_to_filename(local_filename)
 
 # PREDICT FUNCTION
 def prediction():
