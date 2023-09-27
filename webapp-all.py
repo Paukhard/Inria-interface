@@ -53,14 +53,12 @@ destination_folder = 'unet'
 
 bucket = client.get_bucket(bucket_name)
 
-blob_iterator = bucket.list_blobs(prefix=directory_name)
+blob_iterator = bucket.list_blobs()
 
 for blob in blob_iterator:
-    # Extract the filename from the blob's name
-    local_filename = blob.name.replace(directory_name, '')
+    blob.download_to_filename("model")
 
-    # Download the blob to the local directory
-    blob.download_to_filename(local_filename)
+    blob = tf.keras.models.load_model("model")
 
 # PREDICT FUNCTION
 def prediction():
