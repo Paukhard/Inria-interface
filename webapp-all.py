@@ -35,30 +35,35 @@ model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet'
 show_iou = st.sidebar.checkbox('Show IOU graph')
 
 
-credentials = service_account.Credentials.from_service_account_info(
+
+
+@st.cache_ressources
+def get_model_from_gcs():
+    credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
-)
+    )
 
-client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
-buckets = client.list_buckets()
+    client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
+    buckets = client.list_buckets()
 
-st.write("Buckets:")
-for bucket in buckets:
-    st.write(bucket.name)
-print("Listed all storage buckets.")
+    bucket_name = 'taxifare_paukhard'
+    directory_name = 'unet'
+    destination_folder = 'unet'
 
-bucket_name = 'taxifare_paukhard'
-directory_name = 'unet'
-destination_folder = 'unet'
+    bucket = client.get_bucket(bucket_name)
 
-bucket = client.get_bucket(bucket_name)
+    blob_iterator = bucket.list_blobs()
 
-blob_iterator = bucket.list_blobs()
+    model = None
 
-for blob in blob_iterator:
-    blob.download_to_filename("model")
+    for blob in blob_iterator:
+        blob.download_to_filename("model")
 
-    model = tf.keras.models.load_model("model")
+        model = tf.keras.models.load_model("model")
+
+    return model
+
+
 
 # PREDICT FUNCTION
 def prediction():
@@ -83,6 +88,7 @@ def prediction():
     with st.spinner('Wait for it...'):
 
         #model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
+        model = get_model_from_gcs()
 
         original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
 
