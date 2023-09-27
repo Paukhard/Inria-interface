@@ -37,7 +37,7 @@ show_iou = st.sidebar.checkbox('Show IOU graph')
 
 
 
-@st.cache_ressource
+@st.cache_resource
 def get_model_from_gcs():
 
     print("Getting new model!")
