@@ -5,5 +5,5 @@ patchify
 tensorflow
 geopy
 google-cloud-storage
-tqdm
+stqdm
 gcsfs

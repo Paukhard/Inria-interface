@@ -11,7 +11,7 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 import tensorflow as tf
-from tqdm import tqdm
+from stqdm import stqdm
 from PIL import Image
 import numpy as np
 import urllib
@@ -205,7 +205,7 @@ def get_prediction_image(imarray, model, dimensions = (200,200, 3)):
     patches = patchify(imarray, dimensions, step=dimensions[0])
 
     predict_data = []
-    for r_ind in tqdm(range(patches.shape[0])):
+    for r_ind in stqdm(range(patches.shape[0])):
         col_predict = []
         for c_ind in range(patches.shape[1]):
             image = patches[r_ind][c_ind]
