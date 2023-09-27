@@ -95,7 +95,7 @@ def prediction():
 
     map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-    dimensions = (200,200,3)
+    dimensions = dim_dict[model_selection]
 
     # LOADING MODEl
     with st.spinner("Loading model..."):
