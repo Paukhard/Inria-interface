@@ -40,9 +40,9 @@ credentials = service_account.Credentials.from_service_account_info(
 storage_client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
 buckets = storage_client.list_buckets()
 
-print("Buckets:")
+st.write("Buckets:")
 for bucket in buckets:
-    print(bucket.name)
+    st.write(bucket.name)
 print("Listed all storage buckets.")
 
 # PREDICT FUNCTION
