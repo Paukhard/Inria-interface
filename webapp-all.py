@@ -84,21 +84,16 @@ def prediction():
 
     map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-    model = None
 
     # LOADING MODEl
-    with columns[0].spinner("Loading model..."):
+    with st.spinner("Loading model..."):
         model = get_model_from_gcs(model_selection)
 
-    with columns[0].spinner("Loading model..."):
-        pass
-
-    with st.spinner('Wait for it...'):
-
-        #model = tf.keras.models.load_model("gs://taxifare_paukhard/unet")
-        model = get_model_from_gcs(model_selection)
-
+    with st.spinner("Predicting images..."):
         original, gt, prediction = predict_image_maps(lat, lon, model, zoom=zoom_level)
+
+
+    with st.spinner('Showing prediction...'):
 
         # SHOW PREDICT MASK
         columns[2].write("Segmentation Mask")
