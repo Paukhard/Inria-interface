@@ -61,6 +61,7 @@ def get_model_from_gcs(model="unet"):
     return model
 
 
+prediction = None
 
 
 # TOP BAR
