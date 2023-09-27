@@ -58,7 +58,7 @@ blob_iterator = bucket.list_blobs()
 for blob in blob_iterator:
     blob.download_to_filename("model")
 
-    blob = tf.keras.models.load_model("model")
+    model = tf.keras.models.load_model("model")
 
 # PREDICT FUNCTION
 def prediction():
