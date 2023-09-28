@@ -36,7 +36,7 @@ st.set_page_config(
 
 # TOP BAR
 filename = st.sidebar.text_input("File", "austin1.tif")
-set = st.sidebar.selectbox('What set do you want to use?', ('test', 'train'))
+set = st.sidebar.selectbox('What set do you want to use?', ('train', 'test'))
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
 
@@ -62,13 +62,13 @@ def prediction():
     with st.spinner("Loading model..."):
         model = get_model_from_gcs(model_selection)
 
-    with st.spinner("Getting input image from Maps API..."):
+    with st.spinner("Getting input image from Google Cloud..."):
         original = get_im_array_from_gcloud(filename=filename, set=set, subset="images")
 
     with st.spinner("Making prediction"):
         prediction = get_prediction_image(original, model, dimensions=dimensions)
 
-    with st.spinner("Getting ground truth from Maps API..."):
+    with st.spinner("Getting ground truth from Google Cloud..."):
         if set == "train":
             gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
 
@@ -92,7 +92,7 @@ def prediction():
 
             # CALCULATE CHANGE TO PREVIOUS METRIC
             delta = None
-            current_iou = compute_iou(prediction>threshold, np.array(tf.squeeze(tf.image.rgb_to_grayscale(gt))))
+            current_iou = compute_iou(prediction>threshold, gt)
 
             if 'prev_iou' in st.session_state:
                 delta = f"{np.round((current_iou/st.session_state['prev_iou']-1)*100)}%"
@@ -109,7 +109,7 @@ def prediction():
             fig, ax = plt.subplots()
 
             linspace = np.linspace(0.05, 0.95, num=50)
-            y = [compute_iou(prediction>ts, np.array(tf.squeeze(tf.image.rgb_to_grayscale(gt)))) for ts in linspace]
+            y = [compute_iou(prediction>ts, gt) for ts in linspace]
             ax.plot(linspace, y)
             ax.set_ylabel("IOU")
             ax.set_xlabel("Threshold")
