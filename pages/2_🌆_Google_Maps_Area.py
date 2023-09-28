@@ -22,16 +22,12 @@ import os
 from patchify import patchify
 
 from utils import get_model_from_gcs, compute_iou, dim_dict, LOCAL_API_DATA_FOLDER, MAPS_API_KEY
-
+import maptiler
 
 st.set_page_config(
     layout="wide",
     page_title="Building Predictor",
     page_icon="🏛️",)
-
-
-
-
 
 
 # TOP BAR
@@ -68,18 +64,24 @@ def prediction():
 
     dimensions = dim_dict[model_selection]
 
+    area_id = "this_is_area_id"
+
     # LOADING MODEl
     with st.spinner("Loading model..."):
         model = get_model_from_gcs(model_selection)
 
     with st.spinner("Getting input image from Maps API..."):
-        original = get_input_image_maps(lat, lon, zoom=zoom_level, dimensions=dimensions)
+        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon)
+        original = maptiler.combine_tiling_images(area_id=area_id,n_rows=nrows, n_cols=ncols)
+        original = maptiler.get_image_in_right_dimensions(original, dimensions)
 
     with st.spinner("Making prediction"):
         prediction = get_prediction_image(original, model, dimensions=dimensions)
 
     with st.spinner("Getting ground truth from Maps API..."):
-        gt = get_ground_truth(lat, lon, zoom=zoom_level, dimensions=dimensions)
+        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon, ground_truth=True)
+        gt = maptiler.combine_tiling_images(area_id=area_id,n_rows=nrows, n_cols=ncols, ground_truth=True)
+        gt = maptiler.get_image_in_right_dimensions(gt, dimensions)
 
     with st.spinner('Showing prediction...'):
         # SHOW PREDICT MASK
