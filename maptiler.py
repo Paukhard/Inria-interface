@@ -54,7 +54,7 @@ def requestImage(AreaID, picHeight, picWidth, zoom, scale, maptype, lat, lng, ro
     center = str(lat) + "," + str(lng)
     url = "https://maps.googleapis.com/maps/api/staticmap?center=" + center + "&zoom=" + str(zoom) + "&size=" + str(picWidth) + "x" + str(picHeight) + "&key=" + MAPS_API_KEY + "&maptype=" + maptype + "&scale=" + str(scale)
     print(url)
-    filename = "output/" + AreaID + "-" + str(abs(col)) + "," + str(row) + ".png"
+    filename = AreaID + "-" + str(abs(col)) + "," + str(row) + ".png"
 
     r = requests.get(url)
     f = open(filename, 'wb')
@@ -70,7 +70,7 @@ def requestImageWithCrop(AreaID, picHeight, picWidth, zoom, scale, maptype, lat,
     else:
         url = "https://maps.googleapis.com/maps/api/staticmap?center=" + center + "&zoom=" + str(zoom) + "&size=" + str(picWidth) + "x" + str(picHeight) + "&key=" + MAPS_API_KEY + "&scale=" + str(scale) + additional_parameters
 
-    filename = "output/" + AreaID + "-" + str(abs(col)) + "," + str(row) + ".png"
+    filename = AreaID + "-" + str(abs(col)) + "," + str(row) + ".png"
 
     r = requests.get(url)
 
@@ -97,7 +97,6 @@ def getLatStepWithCrop(mapWidth, mapHeight, yScale, lat, lng, crop_pixels):
 
 def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_truth=False):
     # Bounding box for area to be scanned. AreaID is added to file name.
-    area_id = "Hem"
     center_Lat = center_Lat #52.315375
     center_Lng = center_Lng #9.756498
 
@@ -137,7 +136,7 @@ def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_tru
         row = 0
 
         while lng <= southEastLng:
-            requestImageWithCrop(picHeight, picWidth, zoom, scale, maptype, lat, lng, row, col, additional_parameters)
+            requestImageWithCrop(area_id, picHeight, picWidth, zoom, scale, maptype, lat, lng, row, col, additional_parameters)
             row = row + 1
             lng = lng + lngStep
 
@@ -149,7 +148,7 @@ def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_tru
     return n_rows, n_cols
 
 def combine_tiling_images(area_id, n_rows, n_cols, ground_truth=False):
-    path = "output"
+    path = ""
     extension = "png"
 
     min_value = min(n_rows, n_cols)
