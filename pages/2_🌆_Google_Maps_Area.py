@@ -32,7 +32,7 @@ st.set_page_config(
 
 # TOP BAR
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
-zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
+zoom_level = st.sidebar.number_input("Zoom (can't be changed)", min_value=17, max_value=17, value=17, format="%i")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
 
