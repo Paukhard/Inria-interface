@@ -71,7 +71,7 @@ def prediction():
 
     with st.spinner("Getting ground truth from Google Cloud..."):
         if set == "train":
-            gt = get_image_in_right_dimensions(get_im_array_from_gcloud(filename=filename, set=set, subset="gt"), dimensions=dimensions)
+            gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
 
     with st.spinner('Showing prediction...'):
         # SHOW PREDICT MASK
