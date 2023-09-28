@@ -12,7 +12,7 @@ CREDENTIALS = service_account.Credentials.from_service_account_info(st.secrets["
 dim_dict = {
     "unet":(200,200,3),
     "segnet":(200,200,3),
-    "model_ternaus":(200,200,3),
+    "ternaus":(200,200,3),
     "unet_complex":(512,512,3),
     "DeepLabV3":(512,512,3)
 }
