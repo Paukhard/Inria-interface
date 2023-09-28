@@ -4,9 +4,10 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 
-
+PROJECT_ID = 'le-wagon-bootcamp-398616'
 LOCAL_API_DATA_FOLDER = ""
 MAPS_API_KEY = st.secrets["MAPS_API_KEY"]
+CREDENTIALS = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account_bastian"])
 
 dim_dict = {
     "unet":(200,200,3),
@@ -19,22 +20,13 @@ def get_model_from_gcs(model="unet"):
 
     print("Getting new model!")
 
-    credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"]
-    )
+    client = storage.Client(project=PROJECT_ID, credentials=CREDENTIALS)
 
-    client = storage.Client(project="wagon-taxi-cab", credentials=credentials)
-    buckets = client.list_buckets()
-
-    bucket_name = 'taxifare_paukhard'
-    directory_name = 'unet'
-    destination_folder = 'unet'
+    bucket_name = 'aerial_images_inria1358/'
 
     bucket = client.get_bucket(bucket_name)
 
-    blob_iterator = bucket.list_blobs()
-
-    blob = bucket.blob(f"models/{model}.h5")
+    blob = bucket.blob(f"h5 models/{model}.h5")
 
     blob.download_to_filename("model")
     model = tf.keras.models.load_model("model")
