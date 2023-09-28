@@ -238,7 +238,7 @@ def predict_image_maps(lat, lon, model, zoom=17, return_ground_truth=True, dimen
     patches = patchify(imarray, dimensions, step=dimensions[0])
 
     predict_data = []
-    for r_ind in tqdm(range(patches.shape[0])):
+    for r_ind in stqdm(range(patches.shape[0])):
         col_predict = []
         for c_ind in range(patches.shape[1]):
             image = patches[r_ind][c_ind]

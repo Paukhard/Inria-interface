@@ -2,6 +2,7 @@ from google.cloud import storage
 from google.oauth2 import service_account
 import streamlit as st
 import tensorflow as tf
+import numpy as np
 
 
 LOCAL_API_DATA_FOLDER = ""
