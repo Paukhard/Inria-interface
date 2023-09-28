@@ -21,7 +21,7 @@ import os
 
 from patchify import patchify
 
-from pages.utils import get_model_from_gcs
+from utils import get_model_from_gcs
 
 
 st.set_page_config(
