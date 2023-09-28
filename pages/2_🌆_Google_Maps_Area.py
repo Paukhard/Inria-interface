@@ -71,7 +71,7 @@ def prediction():
         model = get_model_from_gcs(model_selection)
 
     with st.spinner("Getting input image from Maps API..."):
-        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon)
+        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon, zoom=zoom_level)
         original = maptiler.combine_tiling_images(area_id=area_id,n_rows=nrows, n_cols=ncols)
         original = maptiler.get_image_in_right_dimensions(original, dimensions)
 
@@ -79,7 +79,7 @@ def prediction():
         prediction = get_prediction_image(original, model, dimensions=dimensions)
 
     with st.spinner("Getting ground truth from Maps API..."):
-        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon, ground_truth=True)
+        nrows, ncols = maptiler.get_tiling_images(area_id, center_Lat=lat, center_Lng=lon, ground_truth=True, zoom=zoom_level)
         gt = maptiler.combine_tiling_images(area_id=area_id,n_rows=nrows, n_cols=ncols, ground_truth=True)
         gt = maptiler.get_image_in_right_dimensions(gt, dimensions)
 

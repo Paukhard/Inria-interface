@@ -97,7 +97,7 @@ def getLatStepWithCrop(mapWidth, mapHeight, yScale, lat, lng, crop_pixels):
 
     return latStep
 
-def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_truth=False):
+def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_truth=False, zoom=17):
     # Bounding box for area to be scanned. AreaID is added to file name.
     center_Lat = center_Lat #52.315375
     center_Lng = center_Lng #9.756498
@@ -111,7 +111,6 @@ def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_tru
 
     # Variables for API request
     api_key = "AIzaSyA9D01ZYb1tYq44l6-S_3BUYtgY8Pzjizk"
-    zoom = 17
     picHeight = 640
     picWidth = 640
     scale = 2
