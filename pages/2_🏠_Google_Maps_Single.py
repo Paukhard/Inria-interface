@@ -38,7 +38,7 @@ st.set_page_config(
 street = st.sidebar.text_input("Address", "Schützenstraße 40, Berlin")
 zoom_level = st.sidebar.number_input("Zoom", min_value=17, max_value=20, value=17, format="%i")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
+model_selection = st.sidebar.selectbox('What model do you want to use?', tuple(dim_dict.keys()))
 
 show_iou = st.sidebar.checkbox('Show IOU graph')
 

@@ -36,7 +36,7 @@ set = st.sidebar.selectbox('What set do you want to use?', ('train', 'test'))
 type = st.sidebar.selectbox('Individual patch, or whole image?', ('whole_image', 'patch'))
 filename = st.sidebar.text_input("File", "austin1.tif")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
-model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
+model_selection = st.sidebar.selectbox('What model do you want to use?', tuple(dim_dict.keys()))
 
 show_iou = st.sidebar.checkbox('Show IOU graph')
 
