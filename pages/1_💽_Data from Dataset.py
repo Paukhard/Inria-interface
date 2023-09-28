@@ -36,8 +36,8 @@ st.set_page_config(
 
 
 # TOP BAR
-filename = st.sidebar.text_input("File", "austin1.tif")
 set = st.sidebar.selectbox('What set do you want to use?', ('train', 'test'))
+filename = st.sidebar.text_input("File", "austin1.tif")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
 
