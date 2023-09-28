@@ -22,6 +22,7 @@ import os
 from patchify import patchify
 
 from utils import get_model_from_gcs, compute_iou, dim_dict, PROJECT_ID, CREDENTIALS
+from maptiler import get_image_in_right_dimensions
 
 
 st.set_page_config(
@@ -70,7 +71,7 @@ def prediction():
 
     with st.spinner("Getting ground truth from Google Cloud..."):
         if set == "train":
-            gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
+            gt = get_image_in_right_dimensions(get_im_array_from_gcloud(filename=filename, set=set, subset="gt"), dimensions=dimensions)
 
     with st.spinner('Showing prediction...'):
         # SHOW PREDICT MASK
