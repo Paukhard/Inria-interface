@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import io
 
+from stqdm import stqdm
+
 from utils import MAPS_API_KEY
 import os
 
@@ -148,7 +150,6 @@ def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_tru
     return n_rows, n_cols
 
 def combine_tiling_images(area_id, n_rows, n_cols, ground_truth=False):
-    path = ""
     extension = "png"
 
     min_value = min(n_rows, n_cols)
@@ -158,7 +159,7 @@ def combine_tiling_images(area_id, n_rows, n_cols, ground_truth=False):
     for r in range(min_value):
         col = []
         for c in range(min_value):
-            img = Image.open(f"{path}/{area_id}-{r},{c}.{extension}").convert("RGB")
+            img = Image.open(f"{area_id}-{r},{c}.{extension}").convert("RGB")
             image = np.asarray(img, dtype="int32")
             if ground_truth:
                 image = np.array(img, dtype="int32")  # Replace 'your_image' with your actual image array
