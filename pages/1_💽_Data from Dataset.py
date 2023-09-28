@@ -59,14 +59,18 @@ def prediction():
     with st.spinner("Getting input image from Google Cloud..."):
         if type == "patch":
             original = get_single_patch_im_array_from_gcloud(filename=filename, set=set, subset="images")
-        original = get_im_array_from_gcloud(filename=filename, set=set, subset="images")
+        else:
+            original = get_im_array_from_gcloud(filename=filename, set=set, subset="images")
 
     with st.spinner("Making prediction"):
         prediction = get_prediction_image(original, model, dimensions=dimensions)
 
     with st.spinner("Getting ground truth from Google Cloud..."):
         if set == "train":
-            gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
+            if type == "patch":
+                gt = get_single_patch_im_array_from_gcloud(filename=filename, set=set, subset="gt")
+            else:
+                gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
 
     with st.spinner('Showing prediction...'):
         # SHOW PREDICT MASK
