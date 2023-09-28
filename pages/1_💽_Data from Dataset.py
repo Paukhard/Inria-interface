@@ -31,12 +31,9 @@ st.set_page_config(
     page_icon="🏛️",)
 
 
-
-
-
-
 # TOP BAR
 set = st.sidebar.selectbox('What set do you want to use?', ('train', 'test'))
+type = st.sidebar.selectbox('Individual patch, or whole image?', ('whole_image', 'patch'))
 filename = st.sidebar.text_input("File", "austin1.tif")
 threshold = st.sidebar.number_input("Threshold", min_value=0.0, max_value=1.0, value=0.5)
 model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet', 'segnet', 'DeepLabV3'))
@@ -44,10 +41,6 @@ model_selection = st.sidebar.selectbox('What model do you want to use?', ('unet'
 show_iou = st.sidebar.checkbox('Show IOU graph')
 
 # The predict button comes after the definition of the predict function
-
-
-
-
 
 # PREDICT FUNCTION
 def prediction():
@@ -64,6 +57,8 @@ def prediction():
         model = get_model_from_gcs(model_selection)
 
     with st.spinner("Getting input image from Google Cloud..."):
+        if type == "patch":
+            original = get_single_patch_im_array_from_gcloud(filename=filename, set=set, subset="images")
         original = get_im_array_from_gcloud(filename=filename, set=set, subset="images")
 
     with st.spinner("Making prediction"):
@@ -151,6 +146,21 @@ def get_im_array_from_gcloud(filename, set="train", subset="images"):
     bucket = storage_client.get_bucket("aerial_images_inria1358")
 
     blob = bucket.blob(f"AerialImageDataset/{set}/{subset}/{filename}")
+
+    blob.download_to_filename(filename)
+
+    return np.asarray(Image.open(filename))
+
+def get_single_patch_im_array_from_gcloud(filename, set="train", subset="images", dimensions=(200,200,3)):
+
+    patch_path = "Patches2" if dimensions==(200,200,3) else "Patches500"
+
+    storage_client = storage.Client(project=PROJECT_ID, credentials=CREDENTIALS)
+
+    # Get the bucket
+    bucket = storage_client.get_bucket("aerial_images_inria1358")
+
+    blob = bucket.blob(f"{patch_path}/{set}/{subset}/{filename}")
 
     blob.download_to_filename(filename)
 
