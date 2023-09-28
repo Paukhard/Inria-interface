@@ -21,7 +21,7 @@ import os
 
 from patchify import patchify
 
-from utils import get_model_from_gcs, compute_iou, dim_dict, LOCAL_API_DATA_FOLDER, MAPS_API_KEY, PROJECT_ID, CREDENTIALS
+from utils import get_model_from_gcs, compute_iou, dim_dict, PROJECT_ID, CREDENTIALS
 
 
 st.set_page_config(
