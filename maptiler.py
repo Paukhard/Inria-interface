@@ -90,7 +90,7 @@ def getLatStepWithCrop(mapWidth, mapHeight, yScale, lat, lng, crop_pixels):
     pointX, pointY = latLngToPoint(mapWidth, mapHeight, lat, lng)
 
     # Calculate the stepped point by subtracting the cropped pixels
-    steppedPointY = pointY - ((mapHeight - crop_pixels) / yScale)
+    steppedPointY = pointY - ((mapHeight - 10) / yScale)
     newLat, originalLng = pointToLatLng(mapWidth, mapHeight, pointX, steppedPointY)
 
     latStep = lat - newLat
@@ -194,11 +194,13 @@ def get_image_in_right_dimensions(imarray, dimensions):
     delta_w = int((imarray.shape[0]-n_width)/2)
     delta_h = int((imarray.shape[1]-n_height)/2)
 
+    cropped_dim = min(n_width, n_height)
+
     temp_cropped = imarray[delta_w:imarray.shape[0]-delta_w, delta_h:imarray.shape[1]-delta_h, :]
 
     # In case one was indivisible, there is a single pixel that we remove by going this extra step
 
-    return temp_cropped[:n_width, :n_height, :]
+    return temp_cropped[:cropped_dim, :cropped_dim, :]
 
 def clean_up_disk(area_id):
     folder_path = ''  # Replace with the path to your folder
