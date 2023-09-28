@@ -22,7 +22,7 @@ def get_model_from_gcs(model="unet"):
 
     client = storage.Client(project=PROJECT_ID, credentials=CREDENTIALS)
 
-    bucket_name = 'aerial_images_inria1358/'
+    bucket_name = 'aerial_images_inria1358'
 
     bucket = client.get_bucket(bucket_name)
 
