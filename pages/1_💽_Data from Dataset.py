@@ -22,7 +22,7 @@ import os
 from patchify import patchify
 
 from utils import get_model_from_gcs, compute_iou, dim_dict, PROJECT_ID, CREDENTIALS
-from maptiler import get_image_in_right_dimensions
+from maptiler import get_image_in_right_dimensions, get_image_in_right_dimensions_2D
 
 
 st.set_page_config(
@@ -60,7 +60,7 @@ def prediction():
         if type == "patch":
             original = get_single_patch_im_array_from_gcloud(filename=filename, set=set, subset="images")
         else:
-            original = get_im_array_from_gcloud(filename=filename, set=set, subset="images")
+            original = get_image_in_right_dimensions(get_im_array_from_gcloud(filename=filename, set=set, subset="images"), dimensions=dimensions)
 
     with st.spinner("Making prediction"):
         prediction = get_prediction_image(original, model, dimensions=dimensions)
@@ -70,7 +70,7 @@ def prediction():
             if type == "patch":
                 gt = get_single_patch_im_array_from_gcloud(filename=filename, set=set, subset="gt")
             else:
-                gt = get_im_array_from_gcloud(filename=filename, set=set, subset="gt")
+                gt = get_image_in_right_dimensions_2D(get_im_array_from_gcloud(filename=filename, set=set, subset="gt"), dimensions=dimensions)
 
     with st.spinner('Showing prediction...'):
         # SHOW PREDICT MASK

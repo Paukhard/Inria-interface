@@ -201,6 +201,21 @@ def get_image_in_right_dimensions(imarray, dimensions):
 
     return temp_cropped[:cropped_dim, :cropped_dim, :]
 
+def get_image_in_right_dimensions_2D(imarray, dimensions):
+    n_width = largest_smaller_divisible(imarray.shape[0], dimensions[0])
+    n_height = largest_smaller_divisible(imarray.shape[1], dimensions[1])
+
+    delta_w = int((imarray.shape[0]-n_width)/2)
+    delta_h = int((imarray.shape[1]-n_height)/2)
+
+    cropped_dim = min(n_width, n_height)
+
+    temp_cropped = imarray[delta_w:imarray.shape[0]-delta_w, delta_h:imarray.shape[1]-delta_h]
+
+    # In case one was indivisible, there is a single pixel that we remove by going this extra step
+
+    return temp_cropped[:cropped_dim, :cropped_dim]
+
 def clean_up_disk(area_id):
     folder_path = ''  # Replace with the path to your folder
 
