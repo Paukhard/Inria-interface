@@ -157,7 +157,7 @@ def get_im_array_from_gcloud(filename, set="train", subset="images"):
 
 def get_single_patch_im_array_from_gcloud(filename, set="train", subset="images", dimensions=(200,200,3)):
 
-    patch_path = "Patches2" if dimensions==(200,200,3) else "Patches500"
+    patch_path = "patches2" if dimensions==(200,200,3) else "patches500"
 
     storage_client = storage.Client(project=PROJECT_ID, credentials=CREDENTIALS)
 
