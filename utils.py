@@ -43,13 +43,13 @@ def get_model_from_gcs(model="unet"):
 
     blob.download_to_filename("model")
 
-    if custom_loss[model] is not None:
-        st.write("trying to load custom model")
-        tf.keras.utils.get_custom_objects().update({"loss": loss03})
-        model = tf.keras.models.load_model("model", custom_objects={'loss': loss03})
-    else:
-        st.write("NOT!! trying to load custom model")
-        model = tf.keras.models.load_model("model")
+    # if custom_loss[model] is not None:
+    #     st.write("trying to load custom model")
+    #     tf.keras.utils.get_custom_objects().update({"loss": loss03})
+    #     model = tf.keras.models.load_model("model", custom_objects={'loss': loss03})
+    # else:
+    #     st.write("NOT!! trying to load custom model")
+    model = tf.keras.models.load_model("model", compile=False)
 
 
     return model
