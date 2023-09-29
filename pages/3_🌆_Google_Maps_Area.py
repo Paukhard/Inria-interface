@@ -132,6 +132,7 @@ def prediction():
     st.header("Location")
     st.map(map_data)
 
+    maptiler.clean_up_disk(area_id)
 
 # SIDEBAR BUTTON
 st.sidebar.button("Predict Buildings", on_click=prediction)
