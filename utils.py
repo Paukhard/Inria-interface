@@ -17,6 +17,17 @@ dim_dict = {
     "DeepLabV3":(512,512,3)
 }
 
+def loss03():
+    pass
+
+custom_loss = {
+    "unet":None,
+    "segnet":None,
+    "ternaus":loss03,
+    "unet_complex":loss03,
+    "DeepLabV3":None
+}
+
 @st.cache_resource
 def get_model_from_gcs(model="unet"):
 
@@ -31,7 +42,12 @@ def get_model_from_gcs(model="unet"):
     blob = bucket.blob(f"h5 models/{model}.h5")
 
     blob.download_to_filename("model")
-    model = tf.keras.models.load_model("model")
+
+    if custom_loss[model] is not None:
+        model = tf.keras.models.load_model("model", custom_objects={'loss': loss03()})
+    else:
+        model = tf.keras.models.load_model("model")
+
 
     return model
 
