@@ -18,10 +18,6 @@ dim_dict = {
     "DeepLabV3_new_2":(512,512,3)
 }
 
-def loss03(y_true, y_pred):
-    pass
-
-
 @st.cache_resource
 def get_model_from_gcs(model="unet"):
 

@@ -102,7 +102,7 @@ def get_tiling_images(area_id, center_Lat, center_Lng, padding=0.012, ground_tru
     center_Lat = center_Lat #52.315375
     center_Lng = center_Lng #9.756498
 
-    padding = 0.008
+    padding = 0.012
 
     northWestLat = np.round(center_Lat+padding/2,7)
     northWestLng = np.round(center_Lng-padding,7)
