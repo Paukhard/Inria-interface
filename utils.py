@@ -47,6 +47,7 @@ def get_model_from_gcs(model="unet"):
         print("trying to load custom model")
         model = tf.keras.models.load_model("model", custom_objects={'loss': loss03()})
     else:
+        print("NOT!! trying to load custom model")
         model = tf.keras.models.load_model("model")
 
 
