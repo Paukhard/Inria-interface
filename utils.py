@@ -17,7 +17,7 @@ dim_dict = {
     "DeepLabV3":(512,512,3)
 }
 
-def loss03():
+def loss03(y_true, y_pred):
     pass
 
 custom_loss = {
@@ -45,7 +45,7 @@ def get_model_from_gcs(model="unet"):
 
     if custom_loss[model] is not None:
         st.write("trying to load custom model")
-        model = tf.keras.models.load_model("model", custom_objects={'loss': loss03()})
+        model = tf.keras.models.load_model("model", custom_objects={'loss': loss03})
     else:
         st.write("NOT!! trying to load custom model")
         model = tf.keras.models.load_model("model")
