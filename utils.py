@@ -14,19 +14,13 @@ dim_dict = {
     "segnet":(200,200,3),
     "ternaus":(200,200,3),
     "unet_complex":(512,512,3),
-    "DeepLabV3":(512,512,3)
+    "DeepLabV3":(512,512,3),
+    "DeepLabV3_new_2":(512,512,3)
 }
 
 def loss03(y_true, y_pred):
     pass
 
-custom_loss = {
-    "unet":None,
-    "segnet":None,
-    "ternaus":loss03,
-    "unet_complex":loss03,
-    "DeepLabV3":None
-}
 
 @st.cache_resource
 def get_model_from_gcs(model="unet"):
